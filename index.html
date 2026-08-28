@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2A4A">
+<title>기초연금 수급 계산기 2026</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ink:#1E2A4A;--ink2:#4A5670;--paper:#F3F5F9;--card:#FFFFFF;--line:#D9DEE8;--ok:#1F7A5C;--okbg:#E4F3EC;--warn:#B7791F;--warnbg:#FBF1DC;--no:#B23A48;--nobg:#F8E4E7;--r:14px}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-text-size-adjust:100%}
+header{background:var(--ink);color:#fff;padding:18px 20px 14px}
+header h1{margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+header .sub{font-size:.85rem;opacity:.75;margin-top:2px}
+nav{display:flex;background:var(--ink);padding:0 12px}
+nav button{flex:1;background:none;border:0;color:#fff;opacity:.6;font:inherit;font-size:.95rem;font-weight:600;padding:12px 0 10px;border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{opacity:1;border-bottom-color:#F2C94C}
+main{max-width:720px;margin:0 auto;padding:16px 14px 90px}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{font-size:1rem;margin:0 0 12px;color:var(--ink2);font-weight:700;text-transform:none;letter-spacing:.02em}
+label{display:block;font-size:.92rem;font-weight:600;margin:12px 0 5px}
+label small{font-weight:400;color:var(--ink2);display:block;font-size:.8rem}
+input[type=text],input[type=number],select{width:100%;font:inherit;font-size:1.1rem;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--ink)}
+.won{position:relative}.won input{padding-right:2.2rem;text-align:right}
+.won::after{content:"원";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink2)}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;font:inherit;font-size:.95rem;font-weight:600;padding:11px 4px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.btn{width:100%;font:inherit;font-size:1.1rem;font-weight:700;padding:15px;border:0;border-radius:12px;background:var(--ink);color:#fff;cursor:pointer;margin-top:8px}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);font-weight:600;font-size:.95rem;padding:11px}
+.hint{font-size:.82rem;color:var(--ink2);margin-top:6px}
+/* result */
+.verdict{border-radius:var(--r);padding:18px 16px;margin-bottom:14px;border:1.5px solid}
+.verdict.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.verdict.warn{background:var(--warnbg);border-color:var(--warn);color:#7a4f0e}
+.verdict.no{background:var(--nobg);border-color:var(--no);color:var(--no)}
+.verdict .t{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.verdict .amt{font-size:2.2rem;font-weight:800;margin:4px 0 0;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.verdict .amt small{font-size:1rem;font-weight:600}
+.verdict .d{font-size:.9rem;margin-top:4px;opacity:.9}
+.meter{margin:14px 0 6px}
+.meter .bar{position:relative;height:16px;border-radius:8px;background:linear-gradient(90deg,var(--ok) 0 70%,var(--warn) 70% 100%);overflow:visible}
+.meter .mk{position:absolute;top:-6px;width:4px;height:28px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
+.meter .mk.no{background:var(--no)}
+.meter .lb{display:flex;justify-content:space-between;font-size:.78rem;color:var(--ink2);margin-top:6px;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td:last-child{text-align:right;white-space:nowrap;font-weight:600}
+tr.sum td{border-top:2px solid var(--ink);border-bottom:0;font-weight:800;font-size:1rem}
+tr.minus td{color:var(--no)}
+tr.grp td{background:var(--paper);font-weight:700;color:var(--ink2);font-size:.82rem;text-align:left}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;background:var(--paper);color:var(--ink2);margin-left:6px;vertical-align:middle}
+/* history */
+.hist{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hist .l{font-size:.85rem;color:var(--ink2)}
+.hist .v{font-weight:700;font-size:1.05rem}
+.hist .v.no{color:var(--no)}.hist .v.ok{color:var(--ok)}
+.hist button{border:0;background:none;color:var(--no);font:inherit;font-size:.85rem;cursor:pointer}
+.sync{display:flex;gap:8px;align-items:center}
+.sync input{flex:1;letter-spacing:.3em;text-align:center}
+.status{font-size:.82rem;margin-top:8px;color:var(--ink2)}
+.status.ok{color:var(--ok)}.status.no{color:var(--no)}
+details{border:1px solid var(--line);border-radius:12px;padding:0 14px;margin-bottom:10px;background:#fff}
+summary{padding:12px 0;font-weight:700;cursor:pointer;font-size:.98rem}
+details p,details li{font-size:.9rem;color:var(--ink2)}
+.foot{font-size:.78rem;color:var(--ink2);text-align:center;margin-top:20px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:.9rem;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>기초연금 수급 계산기</h1>
+  <div class="sub">2026년 고시 기준 · 선정기준액 단독 247만 / 부부 395.2만</div>
+</header>
+<nav>
+  <button class="on" data-t="calc">계산</button>
+  <button data-t="hist">이력</button>
+  <button data-t="info">기준안내</button>
+</nav>
+<main>
+<!-- ===== 계산 ===== -->
+<section id="calc" class="tab on">
+  <div class="card">
+    <h2>가구 정보</h2>
+    <label>가구 유형</label>
+    <div class="seg" id="hh"><button class="on" data-v="1">단독가구</button><button data-v="2">부부가구</button></div>
+    <div id="spouseRow" style="display:none">
+      <label>배우자도 65세 이상 (기초연금 신청)</label>
+      <div class="seg" id="sp2"><button class="on" data-v="1">예 (부부 모두 신청)</button><button data-v="0">아니오 (본인만)</button></div>
+    </div>
+    <label>거주 지역 <small>기본재산액 공제 기준</small></label>
+    <select id="region">
+      <option value="135000000">대도시·특례시 (서울·광역시·수원·용인·고양·창원·화성) — 1억3,500만 공제</option>
+      <option value="85000000" selected>중소도시 (도의 시 지역, 예: 남양주·성남) — 8,500만 공제</option>
+      <option value="72500000">농어촌 (도의 군 지역) — 7,250만 공제</option>
+    </select>
+    <label>직역연금(공무원·사학·군인·별정우체국) 수급 여부 <small>본인 또는 배우자</small></label>
+    <div class="seg" id="jik"><button class="on" data-v="0">없음</button><button data-v="1">있음 (원칙적 제외)</button></div>
+  </div>
+
+  <div class="card">
+    <h2>월 소득 <span class="tag">부부는 합산</span></h2>
+    <label>근로소득 (세전 월급) <small>116만 원 공제 후 70%만 반영</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="work" placeholder="0"></div>
+    <label>사업·임대·이자·배당·사적연금 등 기타소득 <small>전액 반영</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="other" placeholder="0"></div>
+    <div class="grid2">
+      <div><label>본인 국민연금 월액 <small>부양가족연금 제외</small></label><div class="won"><input type="text" inputmode="numeric" id="np1" placeholder="0"></div></div>
+      <div><label>본인 A급여액 <small>공단 조회값(모르면 비움)</small></label><div class="won"><input type="text" inputmode="numeric" id="a1" placeholder="0"></div></div>
+    </div>
+    <div id="npSp" class="grid2" style="display:none">
+      <div><label>배우자 국민연금 월액</label><div class="won"><input type="text" inputmode="numeric" id="np2" placeholder="0"></div></div>
+      <div><label>배우자 A급여액</label><div class="won"><input type="text" inputmode="numeric" id="a2" placeholder="0"></div></div>
+    </div>
+    <div class="hint">A급여액(소득재분배급여)은 국민연금공단 홈페이지 또는 1355에서 조회. 비워두면 국민연금액의 50%로 추정합니다.</div>
+  </div>
+
+  <div class="card">
+    <h2>재산 <span class="tag">부부는 합산</span></h2>
+    <label>일반재산 <small>주택·토지·건물 공시가격 + 전월세보증금 등</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="prop" placeholder="0"></div>
+    <label>금융재산 <small>예금·적금·주식·펀드·보험 해지환급금 등 (2,000만 공제)</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="fin" placeholder="0"></div>
+    <label>부채 <small>금융권 대출·임대보증금 등</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="debt" placeholder="0"></div>
+    <label>고급자동차·회원권 가액 <small>3,000cc 이상 또는 4,000만 원 이상 차량, 골프·콘도·승마 회원권 — 가액 100%가 월소득으로 반영</small></label>
+    <div class="won"><input type="text" inputmode="numeric" id="lux" placeholder="0"></div>
+    <button class="btn" id="go">수급 여부 계산</button>
+  </div>
+
+  <div id="result"></div>
+</section>
+
+<!-- ===== 이력 ===== -->
+<section id="hist" class="tab">
+  <div class="card">
+    <h2>기기 간 동기화 (PIN)</h2>
+    <div class="sync"><input type="text" inputmode="numeric" id="pin" placeholder="PIN 4~8자리 (실업급여 앱과 동일)" maxlength="8"><button class="btn ghost" style="width:auto;margin:0" id="pinBtn">연결</button></div>
+    <div class="status" id="syncStatus">같은 PIN을 입력한 모든 기기에서 계산 이력이 공유됩니다.</div>
+  </div>
+  <div id="histList"></div>
+  <button class="btn ghost" id="clearAll">이 기기 이력 전체 삭제</button>
+</section>
+
+<!-- ===== 안내 ===== -->
+<section id="info" class="tab">
+  <details open><summary>2026년 핵심 수치</summary>
+    <table>
+      <tr><td>선정기준액 · 단독가구</td><td>2,470,000원</td></tr>
+      <tr><td>선정기준액 · 부부가구</td><td>3,952,000원</td></tr>
+      <tr><td>기준연금액 (1인 최대)</td><td>349,700원</td></tr>
+      <tr><td>부부 동시 수급 (각 20% 감액)</td><td>각 279,760원</td></tr>
+      <tr><td>근로소득 공제</td><td>1,160,000원</td></tr>
+      <tr><td>금융재산 공제</td><td>20,000,000원</td></tr>
+      <tr><td>재산 소득환산율</td><td>연 4%</td></tr>
+      <tr><td>국민연금 연계감액 기준</td><td>급여 524,550원 초과<br>+ A급여 262,270원 초과</td></tr>
+    </table>
+  </details>
+  <details><summary>소득인정액 계산식</summary>
+    <p>소득인정액 = 소득평가액 + 재산의 소득환산액</p>
+    <p>소득평가액 = 0.7 × (근로소득 − 116만) + 기타소득 + 공적연금</p>
+    <p>재산환산액 = [(일반재산 − 기본재산액) + (금융재산 − 2,000만) − 부채] × 4% ÷ 12 + 고급차·회원권 가액</p>
+  </details>
+  <details><summary>감액 3종</summary>
+    <ul>
+      <li><b>국민연금 연계감액</b>: 국민연금 급여가 524,550원을 넘고 A급여가 262,270원을 넘으면 적용. max(기준연금액 − ⅔×A급여 + 174,850, 기준연금액×2.5 − 국민연금액). 최소 174,850원 보장.</li>
+      <li><b>부부감액</b>: 부부 모두 수급 시 각 20% 감액.</li>
+      <li><b>소득역전방지 감액</b>: 소득인정액 + 기초연금액이 선정기준액을 넘으면 초과분만큼 감액. 단독 최소 34,970원, 부부 각 27,976원 보장.</li>
+    </ul>
+  </details>
+  <details><summary>신청 방법</summary>
+    <ul>
+      <li>만 65세 생일이 속한 달 1개월 전부터 신청 (신청 필수, 자동지급 아님)</li>
+      <li>읍·면·동 주민센터, 국민연금공단 지사, 복지로(bokjiro.go.kr), '내 곁에 국민연금' 앱</li>
+      <li>신분증, 통장사본, 금융정보 제공동의서, 소득·재산 신고서</li>
+      <li>심사 약 30일, 신청월로 소급 지급, 매월 25일 입금</li>
+    </ul>
+  </details>
+  <p class="foot">본 계산기는 참고용입니다. 실제 수급 여부·금액은 공적자료 조사 결과에 따라 달라지며, 최종 확인은 복지로 모의계산 또는 국민연금공단(1355)에서 하시기 바랍니다.<br>출처: 보건복지부 2026 기초연금 선정기준액 고시, 복지로, 국민연금공단</p>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 상수 (2026) =====
+const C={base:349700,single:2470000,couple:3952000,workDed:1160000,finDed:20000000,rate:0.04,npLine:524550,aLine:262270,addPen:174850,floorNP:174850};
+const API="https://gicho-calc-api.yjjn2005.workers.dev"; // Cloudflare Worker (동기화)
+
+// ===== 유틸 =====
+const $=s=>document.querySelector(s);
+const won=n=>Math.round(n).toLocaleString("ko-KR")+"원";
+const num=id=>Number(($("#"+id).value||"0").replace(/[^\d]/g,""))||0;
+const r10=n=>Math.round(n/10)*10;
+document.querySelectorAll('input[inputmode=numeric]:not(#pin)').forEach(i=>i.addEventListener("input",e=>{const v=e.target.value.replace(/[^\d]/g,"");e.target.value=v?Number(v).toLocaleString("ko-KR"):"";}));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200);}
+function seg(id,cb){$(id).addEventListener("click",e=>{if(e.target.tagName!=="BUTTON")return;[...$(id).children].forEach(b=>b.classList.remove("on"));e.target.classList.add("on");cb&&cb(e.target.dataset.v);});}
+const segv=id=>$(id+" .on").dataset.v;
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,.tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.t).classList.add("on");if(b.dataset.t==="hist")renderHist();});
+seg("#hh",v=>{const c=v==="2";$("#spouseRow").style.display=c?"":"none";$("#npSp").style.display=(c&&segv("#sp2")==="1")?"":"none";});
+seg("#sp2",v=>{$("#npSp").style.display=v==="1"?"":"none";});
+seg("#jik");
+
+// ===== 계산 =====
+function pensionPerPerson(np,a){
+  if(np<=C.npLine)return{amt:C.base,linked:false};
+  const A=a>0?a:np*0.5;
+  if(A<=C.aLine)return{amt:C.base,linked:false,estA:a<=0};
+  const m1=C.base-(2/3)*A+C.addPen, m2=C.base*2.5-np;
+  let amt=Math.max(m1,m2); amt=Math.min(C.base,Math.max(C.floorNP,amt));
+  return{amt:r10(amt),linked:true,estA:a<=0};
+}
+function calc(){
+  const couple=segv("#hh")==="2", both=couple&&segv("#sp2")==="1", jik=segv("#jik")==="1";
+  const basic=Number($("#region").value);
+  const work=num("work"),other=num("other"),np1=num("np1"),a1=num("a1"),np2=both?num("np2"):0,a2=both?num("a2"):0;
+  const prop=num("prop"),fin=num("fin"),debt=num("debt"),lux=num("lux");
+  const workEval=Math.max(0,(work-C.workDed))*0.7;
+  const incomeEval=workEval+other+np1+np2;
+  const netAsset=Math.max(0,Math.max(0,prop-basic)+Math.max(0,fin-C.finDed)-debt);
+  const assetEval=netAsset*C.rate/12+lux;
+  const income=incomeEval+assetEval;
+  const line=couple?C.couple:C.single;
+  const persons=both?2:1;
+  // 1) 국민연금 연계
+  const p1=pensionPerPerson(np1,a1), p2=both?pensionPerPerson(np2,a2):null;
+  let amts=[p1.amt]; if(p2)amts.push(p2.amt);
+  // 2) 부부감액
+  const coupleCut=both; if(coupleCut)amts=amts.map(x=>r10(x*0.8));
+  const afterCouple=amts.reduce((s,x)=>s+x,0);
+  // 3) 소득역전방지
+  const minEach=both?r10(C.base*0.1*0.8):r10(C.base*0.1);
+  let final=amts.slice(), reverseCut=0;
+  const over=income+afterCouple-line;
+  if(over>0){const cut=Math.min(over,afterCouple-minEach*persons);reverseCut=Math.max(0,cut);final=amts.map(x=>r10(x-reverseCut/persons));}
+  const total=final.reduce((s,x)=>s+x,0);
+  const eligible=!jik&&income<=line;
+  return{couple,both,jik,basic,work,other,np1,np2,a1,a2,prop,fin,debt,lux,workEval,incomeEval,netAsset,assetEval,income,line,persons,p1,p2,coupleCut,afterCouple,reverseCut,final,total,eligible,ratio:income/line};
+}
+function render(R){
+  let cls,t,amt,d;
+  if(R.jik){cls="no";t="수급 대상 제외";amt="";d="직역연금 수급권자와 배우자는 원칙적으로 제외됩니다. 일시금 수령 후 5년 경과 등 예외는 공단에 확인하세요.";}
+  else if(!R.eligible){cls="no";t="수급 불가";amt=`<div class="amt">0<small>원</small></div>`;d=`소득인정액이 선정기준액보다 ${won(R.income-R.line)} 초과합니다.`;}
+  else{cls=R.reverseCut>0||R.total<C.base*R.persons*0.6?"warn":"ok";t=R.reverseCut>0?"수급 가능 (감액 적용)":"수급 가능";
+    amt=`<div class="amt">${Math.round(R.total).toLocaleString()}<small>원 / 월${R.both?" (부부 합산)":""}</small></div>`;
+    d=R.both?`1인당 ${R.final.map(x=>won(x)).join(" · ")}`:`선정기준액까지 여유 ${won(R.line-R.income)}`;}
+  const pct=Math.min(100,R.ratio*70);
+  const rows=[];
+  const row=(a,b,c="")=>rows.push(`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`);
+  row("소득평가액","", "grp");
+  row(`근로소득 (${won(R.work)} − 116만) × 70%`,won(R.workEval));
+  row("기타소득",won(R.other));
+  row("국민연금 (공적이전소득)",won(R.np1+R.np2));
+  row("재산의 소득환산액","", "grp");
+  row(`일반재산 − 기본재산액(${(R.basic/1e4).toLocaleString()}만)`,won(Math.max(0,R.prop-R.basic)));
+  row("금융재산 − 2,000만",won(Math.max(0,R.fin-C.finDed)));
+  row("− 부채","−"+won(R.debt),"minus");
+  row("순재산 × 4% ÷ 12",won(R.netAsset*C.rate/12));
+  if(R.lux)row("고급자동차·회원권 (100%)",won(R.lux));
+  row("소득인정액 합계",won(R.income),"sum");
+  const rows2=[];
+  const row2=(a,b,c="")=>rows2.push(`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`);
+  row2("기준연금액 × "+R.persons+"명",won(C.base*R.persons));
+  const npCut=C.base*R.persons-(R.p1.amt+(R.p2?R.p2.amt:0));
+  if(npCut>0)row2(`국민연금 연계감액${(R.p1.estA||(R.p2&&R.p2.estA))?" (A급여 추정)":""}`,"−"+won(npCut),"minus");
+  if(R.coupleCut)row2("부부감액 20%","−"+won(R.p1.amt+R.p2.amt-R.afterCouple),"minus");
+  if(R.reverseCut>0)row2("소득역전방지 감액","−"+won(R.reverseCut),"minus");
+  row2("월 기초연금액",won(R.eligible?R.total:0),"sum");
+  $("#result").innerHTML=`
+  <div class="verdict ${cls}"><div class="t">${t}</div>${amt}<div class="d">${d}</div>
+    <div class="meter"><div class="bar"><div class="mk ${R.eligible?"":"no"}" style="left:${pct}%"></div></div>
+    <div class="lb"><span>0</span><span>소득인정액 ${won(R.income)}</span><span>기준 ${won(R.line)}</span></div></div></div>
+  <div class="card"><h2>소득인정액 산출 내역</h2><table>${rows.join("")}</table></div>
+  ${!R.eligible?"":`<div class="card"><h2>기초연금액 산정</h2><table>${rows2.join("")}</table></div>`}
+  <button class="btn ghost" id="save">이 결과를 이력에 저장</button>`;
+  $("#save").onclick=()=>saveHist(R);
+  $("#result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("#go").onclick=()=>render(calc());
+
+// ===== 이력 + 동기화 =====
+const LS="gicho_hist", LP="gicho_pin";
+let hist=JSON.parse(localStorage.getItem(LS)||"[]");
+async function keyOf(pin){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("gicho:"+pin));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function setStatus(m,c=""){const s=$("#syncStatus");s.textContent=m;s.className="status "+c;}
+async function push(){const pin=localStorage.getItem(LP);if(!pin)return;try{const k=await keyOf(pin);const r=await fetch(API+"/sync?key="+k,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:hist.slice(0,200),ts:Date.now()})});if(!r.ok)throw 0;setStatus("동기화 완료 · "+new Date().toLocaleTimeString("ko-KR"),"ok");}catch{setStatus("서버 연결 실패 — 이 기기에만 저장됨","no");}}
+async function pull(){const pin=localStorage.getItem(LP);if(!pin)return;try{const k=await keyOf(pin);const r=await fetch(API+"/sync?key="+k);if(r.status===404){await push();return;}if(!r.ok)throw 0;const d=await r.json();const map=new Map(hist.map(h=>[h.id,h]));(d.items||[]).forEach(h=>map.set(h.id,h));hist=[...map.values()].sort((a,b)=>b.ts-a.ts).slice(0,200);localStorage.setItem(LS,JSON.stringify(hist));renderHist();setStatus("동기화 완료 · "+new Date().toLocaleTimeString("ko-KR"),"ok");}catch{setStatus("서버 연결 실패 — 이 기기에만 저장됨","no");}}
+function saveHist(R){hist.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:Date.now(),hh:R.both?"부부":R.couple?"부부(본인만)":"단독",income:Math.round(R.income),line:R.line,total:R.eligible?Math.round(R.total):0,ok:R.eligible,work:R.work,other:R.other,np:R.np1+R.np2,prop:R.prop,fin:R.fin,debt:R.debt});hist=hist.slice(0,200);localStorage.setItem(LS,JSON.stringify(hist));toast("이력에 저장됨");push();}
+function renderHist(){const el=$("#histList");if(!hist.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink2)">저장된 계산이 없습니다.<br>계산 후 "이력에 저장"을 누르세요.</div>';return;}
+ el.innerHTML=hist.map(h=>`<div class="hist"><div><div class="l">${new Date(h.ts).toLocaleString("ko-KR",{dateStyle:"short",timeStyle:"short"})} · ${h.hh} · 소득인정액 ${won(h.income)}</div><div class="v ${h.ok?"ok":"no"}">${h.ok?"월 "+won(h.total):"수급 불가"}</div></div><button data-id="${h.id}">삭제</button></div>`).join("");
+ el.querySelectorAll("button").forEach(b=>b.onclick=()=>{hist=hist.filter(x=>x.id!==b.dataset.id);localStorage.setItem(LS,JSON.stringify(hist));renderHist();push();});}
+$("#clearAll").onclick=()=>{if(!confirm("이 기기의 이력을 모두 삭제할까요? (PIN 연결 시 다른 기기에도 반영)"))return;hist=[];localStorage.setItem(LS,"[]");renderHist();push();};
+$("#pinBtn").onclick=async()=>{const p=$("#pin").value.replace(/\D/g,"");if(p.length<4){toast("PIN은 4자리 이상");return;}localStorage.setItem(LP,p);setStatus("연결 중…");await pull();};
+(function init(){const p=localStorage.getItem(LP);if(p){$("#pin").value=p;pull();}renderHist();})();
+</script>
+</body>
+</html>
