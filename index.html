@@ -82,7 +82,7 @@ details p,details li{font-size:.9rem;color:var(--ink2)}
 <nav>
   <button class="on" data-t="calc">계산</button>
   <button data-t="hist">이력</button>
-  <button data-t="info">기준안내</button>
+  <button data-t="hurdle">허들표</button><button data-t="info">기준안내</button>
 </nav>
 <main>
 <!-- ===== 계산 ===== -->
@@ -172,6 +172,57 @@ details p,details li{font-size:.9rem;color:var(--ink2)}
   </div>
   <div id="histList"></div>
   <button class="btn ghost" id="clearAll">이 기기 이력 전체 삭제</button>
+</section>
+
+
+<!-- ===== 허들표 ===== -->
+<section id="hurdle" class="tab">
+  <div class="card"><h2>본인(부부 합산) 재산·소득 허들 — 2026</h2>
+  <div class="hint" style="margin:0 0 10px">다른 소득·재산이 전혀 없다고 가정했을 때, 그 항목 하나만으로 허용되는 최대치입니다. 여러 항목이 있으면 각각의 환산액을 합쳐 판단합니다.<br>재산 → 월 환산: (순재산) × 4% ÷ 12 = 순재산 ÷ 300</div>
+  <table>
+    <tr class="grp"><td colspan="2">① 수급 한도 (소득인정액 ≤ 선정기준액)</td></tr>
+    <tr><td>소득인정액 상한 · 단독 / 부부</td><td>247만 / 395.2만</td></tr>
+    <tr><td>순재산 상한 (공제 후) · 단독 / 부부</td><td>7억 4,100만 / 11억 8,560만</td></tr>
+    <tr class="grp"><td colspan="2">② 전액 수령 한도 (감액 없이 349,700원 / 부부 559,520원)</td></tr>
+    <tr><td>소득인정액 상한 · 단독 / 부부</td><td>212만 300 / 339만 2,480</td></tr>
+    <tr><td>순재산 상한 (공제 후) · 단독 / 부부</td><td>6억 3,609만 / 10억 1,774만</td></tr>
+  </table></div>
+
+  <div class="card"><h2>일반재산(주택 공시가격)만 있는 경우</h2>
+  <table>
+    <tr><td></td><td>수급 한도</td></tr>
+    <tr class="grp"><td colspan="2">단독가구</td></tr>
+    <tr><td>대도시·특례시 (공제 1.35억)</td><td>8억 7,600만</td></tr>
+    <tr><td>중소도시 (공제 8,500만)</td><td>8억 2,600만</td></tr>
+    <tr><td>농어촌 (공제 7,250만)</td><td>8억 1,350만</td></tr>
+    <tr class="grp"><td colspan="2">부부가구</td></tr>
+    <tr><td>대도시·특례시</td><td>13억 2,060만</td></tr>
+    <tr><td>중소도시</td><td>12억 7,060만</td></tr>
+    <tr><td>농어촌</td><td>12억 5,810만</td></tr>
+  </table>
+  <div class="hint">전액 수령 한도는 위 금액에서 단독 약 1억 490만, 부부 약 1억 6,786만을 뺀 값입니다. (예: 중소도시 단독 7억 2,110만)</div></div>
+
+  <div class="card"><h2>항목별 단독 허들 (다른 소득·재산 없을 때)</h2>
+  <table>
+    <tr><td></td><td>단독 / 부부</td></tr>
+    <tr><td>금융재산만 (예금·주식, 공제 2,000만)</td><td>7억 6,100만 / 12억 560만</td></tr>
+    <tr><td>근로소득만 (세전 월급, 부부는 합산)</td><td>468만 8,571 / 680만 5,714</td></tr>
+    <tr><td>근로소득 — 전액 수령</td><td>418만 8,999 / 600만 6,400</td></tr>
+    <tr><td>사업·임대·이자 등 기타소득만</td><td>247만 / 395.2만</td></tr>
+    <tr><td>국민연금만 (전액 반영, 별도 연계감액)</td><td>247만 / 395.2만</td></tr>
+    <tr><td>국민연금 연계감액 없이 전액 받는 선</td><td>월 52만 4,550원 이하</td></tr>
+    <tr><td>고급차·회원권</td><td>가액 100%가 월소득 → 사실상 0</td></tr>
+    <tr><td>과거 증여재산 잔액 (일반재산 취급)</td><td>일반재산 허들과 동일</td></tr>
+  </table></div>
+
+  <div class="card"><h2>환산 감각 — 재산 1억당</h2>
+  <table>
+    <tr><td>일반·금융재산 1억 (공제 초과분)</td><td>월 33만 3,333원</td></tr>
+    <tr><td>주택 공시가 5억 (중소도시 단독)</td><td>월 138만 3,333원</td></tr>
+    <tr><td>예금 1억</td><td>월 26만 6,667원</td></tr>
+    <tr><td>자녀 15억 주택 무상거주</td><td>월 97만 5,000원</td></tr>
+    <tr><td>월급 300만 원</td><td>월 128만 8,000원</td></tr>
+  </table></div>
 </section>
 
 <!-- ===== 안내 ===== -->
@@ -293,7 +344,7 @@ function render(R){
   else if(!R.eligible){cls="no";t="수급 불가";amt=`<div class="amt">0<small>원</small></div>`;d=`소득인정액이 선정기준액보다 ${won(R.income-R.line)} 초과합니다.`;}
   else{cls=R.reverseCut>0||R.total<C.base*R.persons*0.6?"warn":"ok";t=R.reverseCut>0?"수급 가능 (감액 적용)":"수급 가능";
     amt=`<div class="amt">${Math.round(R.total).toLocaleString()}<small>원 / 월${R.both?" (부부 합산)":""}</small></div>`;
-    d=R.both?`1인당 ${R.final.map(x=>won(x)).join(" · ")}`:`선정기준액까지 여유 ${won(R.line-R.income)}`;}
+    const fullLine=R.line-(R.both?r10(C.base*0.8)*2:C.base);const room=R.line-R.income;d=`${R.both?"1인당 "+R.final.map(x=>won(x)).join(" · ")+"<br>":""}수급 한도까지 여유 ${won(room)} (재산 약 ${(room*300/1e8).toFixed(2)}억)${R.income<=fullLine?` · 전액수령 한도까지 ${won(fullLine-R.income)}`:` · 전액수령 선 ${won(R.income-fullLine)} 초과`}`;}
   const pct=Math.min(100,R.ratio*70);
   const rows=[];
   const row=(a,b,c="")=>rows.push(`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`);
