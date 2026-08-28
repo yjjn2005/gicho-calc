@@ -132,6 +132,7 @@ details p,details li{font-size:.9rem;color:var(--ink2)}
     <div class="won"><input type="text" inputmode="numeric" id="debt" placeholder="0"></div>
     <label>고급자동차·회원권 가액 <small>3,000cc 이상 또는 4,000만 원 이상 차량, 골프·콘도·승마 회원권 — 가액 100%가 월소득으로 반영</small></label>
     <div class="won"><input type="text" inputmode="numeric" id="lux" placeholder="0"></div>
+    <div id="luxWarn" class="hint" style="display:none;color:var(--no);font-weight:600"></div>
   </div>
   <div class="card">
     <h2>자녀 관련 · 과거 증여 <span class="tag">해당 시만</span></h2>
@@ -293,6 +294,7 @@ seg("#jik");
 seg("#freeHome",v=>{$("#freeHomeRow").style.display=v==="1"?"":"none";});
 seg("#giftOn",v=>{$("#giftRows").style.display=v==="1"?"":"none";});
 seg("#giftKind");
+$("#lux").addEventListener("input",()=>{const v=num("lux");const w=$("#luxWarn");if(!v){w.style.display="none";return;}w.style.display="";w.textContent=`이 금액 ${won(v)}이 매달 소득으로 그대로 잡힙니다 (단독 기준 247만 원의 ${Math.round(v/C.single*100)}%). 4,000만 원 미만·3,000cc 미만 차량이나 일반 회원권은 여기에 넣지 말고 일반재산에 포함하세요.`;});
 
 // ===== 계산 =====
 function pensionPerPerson(np,a){
@@ -369,7 +371,10 @@ function render(R){
   if(R.coupleCut)row2("부부감액 20%","−"+won(R.p1.amt+R.p2.amt-R.afterCouple),"minus");
   if(R.reverseCut>0)row2("소득역전방지 감액","−"+won(R.reverseCut),"minus");
   row2("월 기초연금액",won(R.eligible?R.total:0),"sum");
-  $("#result").innerHTML=`
+  let luxCard="";
+  if(R.lux>0){const inc0=R.income-R.lux;const ok0=inc0<=R.line;
+    luxCard=`<div class="verdict no" style="margin-bottom:10px"><div class="t" style="font-size:1.05rem">사치성 재산 보유 경고</div><div class="d">고급자동차·회원권 가액 ${won(R.lux)} 전액이 월 소득으로 산정되어 소득인정액이 ${won(R.income)}까지 올라갔습니다. 이 재산이 없다면 소득인정액은 ${won(inc0)}으로 ${ok0?"수급 가능":"여전히 수급 불가"}입니다.${ok0?" 처분·명의변경 시 처분대금은 다시 재산으로 잡히므로 공단에 사전 확인하세요.":""}</div></div>`;}
+  $("#result").innerHTML=luxCard+`
   <div class="verdict ${cls}"><div class="t">${t}</div>${amt}<div class="d">${d}</div>
     <div class="meter"><div class="bar"><div class="mk ${R.eligible?"":"no"}" style="left:${pct}%"></div></div>
     <div class="lb"><span>0</span><span>소득인정액 ${won(R.income)}</span><span>기준 ${won(R.line)}</span></div></div></div>
