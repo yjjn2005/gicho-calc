@@ -340,6 +340,23 @@ function calc(){
   const eligible=!jik&&income<=line;
   return{freeVal,freeInc,gift,giftProp,giftFin,couple,both,jik,basic,work,other,np1,np2,a1,a2,prop,fin,debt,lux,workEval,incomeEval,netAsset,assetEval,income,line,persons,p1,p2,coupleCut,afterCouple,reverseCut,final,total,eligible,ratio:income/line};
 }
+function forecast(R){
+  if(!R.gift.on||R.gift.left<=0)return null;
+  const base=R.income-(R.gift.kind==="prop"
+    ? Math.max(0,Math.max(0,R.prop+R.gift.left-R.basic)+Math.max(0,R.fin-C.finDed)-R.debt)*C.rate/12
+    : Math.max(0,Math.max(0,R.prop-R.basic)+Math.max(0,R.fin+R.gift.left-C.finDed)-R.debt)*C.rate/12);
+  const incAt=m=>{const left=Math.max(0,R.gift.left-R.gift.nat*m);
+    const gp=R.gift.kind==="prop"?left:0, gf=R.gift.kind==="fin"?left:0;
+    return base+Math.max(0,Math.max(0,R.prop+gp-R.basic)+Math.max(0,R.fin+gf-C.finDed)-R.debt)*C.rate/12;};
+  const fullLine=R.line-(R.both?r10(C.base*0.8)*2:C.base);
+  const mZero=Math.ceil(R.gift.left/R.gift.nat);
+  let mOk=null,mFull=null;
+  for(let m=0;m<=Math.min(mZero,1200);m++){const i=incAt(m);if(mOk===null&&i<=R.line)mOk=m;if(mFull===null&&i<=fullLine){mFull=m;break;}}
+  if(mOk===null&&incAt(mZero)<=R.line)mOk=mZero;
+  if(mFull===null&&incAt(mZero)<=fullLine)mFull=mZero;
+  const dt=m=>{const d=new Date();d.setMonth(d.getMonth()+m);return d.getFullYear()+"년 "+(d.getMonth()+1)+"월";};
+  const yn=m=>m>=12?Math.floor(m/12)+"년"+(m%12?" "+(m%12)+"개월":""):m+"개월";
+  return{mZero,mOk,mFull,dt,yn};}
 function render(R){
   let cls,t,amt,d;
   if(R.jik){cls="no";t="수급 대상 제외";amt="";d="직역연금 수급권자와 배우자는 원칙적으로 제외됩니다. 일시금 수령 후 5년 경과 등 예외는 공단에 확인하세요.";}
@@ -374,7 +391,14 @@ function render(R){
   let luxCard="";
   if(R.lux>0){const inc0=R.income-R.lux;const ok0=inc0<=R.line;
     luxCard=`<div class="verdict no" style="margin-bottom:10px"><div class="t" style="font-size:1.05rem">사치성 재산 보유 경고</div><div class="d">고급자동차·회원권 가액 ${won(R.lux)} 전액이 월 소득으로 산정되어 소득인정액이 ${won(R.income)}까지 올라갔습니다. 이 재산이 없다면 소득인정액은 ${won(inc0)}으로 ${ok0?"수급 가능":"여전히 수급 불가"}입니다.${ok0?" 처분·명의변경 시 처분대금은 다시 재산으로 잡히므로 공단에 사전 확인하세요.":""}</div></div>`;}
-  $("#result").innerHTML=luxCard+`
+  let fc=forecast(R),fcCard="";
+  if(fc){const li=[`증여재산 잔액 ${won(R.gift.left)} — 매월 ${won(R.gift.nat)}씩 차감`,
+    `완전 소진: <b>${fc.dt(fc.mZero)}</b> (앞으로 ${fc.yn(fc.mZero)})`,
+    fc.mOk===null?`수급 가능 시점: 증여재산이 모두 소진돼도 다른 소득·재산 때문에 <b>수급 불가</b>`:
+      fc.mOk===0?`수급: 지금도 가능`:`수급 가능 추정: <b>${fc.dt(fc.mOk)}</b>부터 (앞으로 ${fc.yn(fc.mOk)}, 잔액이 기준 아래로 내려오는 시점)`,
+    fc.mFull!==null&&fc.mFull>0?`전액(${won(R.both?r10(C.base*.8)*2:C.base)}) 수령 추정: <b>${fc.dt(fc.mFull)}</b>부터`:""].filter(Boolean);
+    fcCard=`<div class="card" style="border-left:5px solid var(--warn)"><h2>증여재산 소진·수급 시점 추계</h2>${li.map(x=>`<p style="margin:4px 0;font-size:.95rem">▪ ${x}</p>`).join("")}<div class="hint">2026년 선정기준액·자연적 소비금액이 유지된다는 가정입니다. 두 값 모두 매년 인상되므로 실제 수급 가능 시점은 이보다 빨라질 수 있고, 조사 시 본인 소비 증빙이 추가 인정되면 더 앞당겨집니다. 수급 시작은 해당 시점에 직접 신청해야 합니다.</div></div>`;}
+  $("#result").innerHTML=fcCard+luxCard+`
   <div class="verdict ${cls}"><div class="t">${t}</div>${amt}<div class="d">${d}</div>
     <div class="meter"><div class="bar"><div class="mk ${R.eligible?"":"no"}" style="left:${pct}%"></div></div>
     <div class="lb"><span>0</span><span>소득인정액 ${won(R.income)}</span><span>기준 ${won(R.line)}</span></div></div></div>
